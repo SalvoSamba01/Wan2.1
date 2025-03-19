@@ -5,6 +5,7 @@ import logging
 import os
 import sys
 import warnings
+import json
 
 warnings.filterwarnings('ignore')
 
@@ -320,8 +321,6 @@ def generate(args):
             guide_scale=args.sample_guide_scale,
             seed=args.base_seed,
             offload_model=args.offload_model)
-
-        import json
 
         with open("parameters.txt", "a") as parameterFile:
             parameters = {
