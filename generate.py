@@ -321,6 +321,10 @@ def generate(args):
             seed=args.base_seed,
             offload_model=args.offload_model)
 
+        with open("seeds.txt", "a") as seed_file:
+            seed_file.write(f"{args.save_file}:{args.base_seed}\n")
+
+
     else:
         if args.prompt is None:
             args.prompt = EXAMPLE_PROMPT[args.task]["prompt"]
