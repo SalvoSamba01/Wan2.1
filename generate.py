@@ -320,10 +320,32 @@ def generate(args):
             guide_scale=args.sample_guide_scale,
             seed=args.base_seed,
             offload_model=args.offload_model)
-        
-        with open("seeds.txt", "a") as seed_file:
-            seed_file.write(f"{args.save_file}:{args.base_seed}\n")
 
+        import json
+
+        with open("parameters.txt", "a") as parameterFile:
+            parameters = {
+                "filename": args.save_file,
+                "prompt": args.prompt,
+                "cfg": args.sample_guide_scale,
+                "sample_shift": args.sample_shift,
+                "sample_steps": args.sample_steps,
+                "seed": args.base_seed
+            }
+            parameterFile.write(json.dumps(parameters) + "\n")
+
+
+        
+        """
+        with open("seeds.txt", "a") as seed_file:
+            seed_file.write(f"{args.save_file}\n")
+            seed_file.write(f"Prompt:{args.prompt}\n")
+            seed_file.write(f"cfg:{args.sample_guide_scale}\n")
+            seed_file.write(f"timeshift:{args.sample_shift}\n")
+            seed_file.write(f"sample_steps:{args.sample_steps}\n")
+            seed_file.write(f"Seed:{args.base_seed}\n")
+        """
+        
     else:
         if args.prompt is None:
             args.prompt = EXAMPLE_PROMPT[args.task]["prompt"]
