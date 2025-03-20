@@ -319,7 +319,7 @@ def generate(args):
 
         for idx, prompt in enumerate(prompts):
             args.prompt = prompt
-            args.save_file = f"{idx}.mp4"
+            args.save_file = os.path.join("/wan/videos", f"{idx}.mp4")
             args.base_seed = random.randint(0, sys.maxsize)
 
             logging.info(f"Input prompt: {args.prompt}\n")
@@ -337,7 +337,7 @@ def generate(args):
                 seed=args.base_seed,
                 offload_model=args.offload_model)
     
-            with open("parameters.txt", "a") as parameterFile:
+            with open(os.path.join("/wan/videos", "parameters.txt"), "a") as parameterFile:
                 parameters = {
                     "filename": args.save_file,
                     "prompt": args.prompt,
