@@ -272,9 +272,6 @@ def generate(args):
     if args.ulysses_size > 1:
         assert cfg.num_heads % args.ulysses_size == 0, f"`num_heads` must be divisible by `ulysses_size`."
 
-    logging.info(f"Generation job args: {args}")
-    logging.info(f"Generation model config: {cfg}")
-
     if dist.is_initialized():
         base_seed = [args.base_seed] if rank == 0 else [None]
         dist.broadcast_object_list(base_seed, src=0)
@@ -323,6 +320,7 @@ def generate(args):
         for idx, prompt in enumerate(prompts):
             args.prompt = prompt
             args.save_file = f"{idx}.mp4"
+            args.base_seed = random.randint(0, sys.maxsize)
 
             logging.info(
                 f"Generating {'image' if 't2i' in args.task else 'video'} ...")
