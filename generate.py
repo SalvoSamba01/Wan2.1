@@ -6,6 +6,7 @@ import os
 import sys
 import warnings
 import json
+import csv
 
 warnings.filterwarnings('ignore')
 
@@ -35,6 +36,14 @@ EXAMPLE_PROMPT = {
             "examples/i2v_input.JPG",
     },
 }
+
+def read_prompts_from_csv(file_path):
+    prompts = []
+    with open(file_path, mode='r', encoding='utf-8') as csvfile:
+        reader = csv.DictReader(csvfile)
+        for row in reader:
+            prompts.append(row['prompt'])
+    return prompts
 
 
 def _validate_args(args):
@@ -309,41 +318,55 @@ def generate(args):
             t5_cpu=args.t5_cpu,
         )
 
-        logging.info(
-            f"Generating {'image' if 't2i' in args.task else 'video'} ...")
-        video = wan_t2v.generate(
-            args.prompt,
-            size=SIZE_CONFIGS[args.size],
-            frame_num=args.frame_num,
-            shift=args.sample_shift,
-            sample_solver=args.sample_solver,
-            sampling_steps=args.sample_steps,
-            guide_scale=args.sample_guide_scale,
-            seed=args.base_seed,
-            offload_model=args.offload_model)
+        prompts = read_prompts_from_csv("prompt.csv")
 
-        with open("parameters.txt", "a") as parameterFile:
-            parameters = {
-                "filename": args.save_file,
-                "prompt": args.prompt,
-                "cfg": args.sample_guide_scale,
-                "sample_shift": args.sample_shift,
-                "sample_steps": args.sample_steps,
-                "seed": args.base_seed
-            }
-            parameterFile.write(json.dumps(parameters) + "\n")
+        for idx, prompt in enumerate(prompts):
+            args.prompt = prompt
+            args.save_file = f"{idx}.mp4"
 
-
+            logging.info(
+                f"Generating {'image' if 't2i' in args.task else 'video'} ...")
+            video = wan_t2v.generate(
+                args.prompt,
+                size=SIZE_CONFIGS[args.size],
+                frame_num=args.frame_num,
+                shift=args.sample_shift,
+                sample_solver=args.sample_solver,
+                sampling_steps=args.sample_steps,
+                guide_scale=args.sample_guide_scale,
+                seed=args.base_seed,
+                offload_model=args.offload_model)
+    
+            with open("parameters.txt", "a") as parameterFile:
+                parameters = {
+                    "filename": args.save_file,
+                    "prompt": args.prompt,
+                    "cfg": args.sample_guide_scale,
+                    "sample_shift": args.sample_shift,
+                    "sample_steps": args.sample_steps,
+                    "seed": args.base_seed
+                }
+                parameterFile.write(json.dumps(parameters) + "\n")
+    
+    
+            
+            """
+            with open("seeds.txt", "a") as seed_file:
+                seed_file.write(f"{args.save_file}\n")
+                seed_file.write(f"Prompt:{args.prompt}\n")
+                seed_file.write(f"cfg:{args.sample_guide_scale}\n")
+                seed_file.write(f"timeshift:{args.sample_shift}\n")
+                seed_file.write(f"sample_steps:{args.sample_steps}\n")
+                seed_file.write(f"Seed:{args.base_seed}\n")
+            """
         
-        """
-        with open("seeds.txt", "a") as seed_file:
-            seed_file.write(f"{args.save_file}\n")
-            seed_file.write(f"Prompt:{args.prompt}\n")
-            seed_file.write(f"cfg:{args.sample_guide_scale}\n")
-            seed_file.write(f"timeshift:{args.sample_shift}\n")
-            seed_file.write(f"sample_steps:{args.sample_steps}\n")
-            seed_file.write(f"Seed:{args.base_seed}\n")
-        """
+            cache_video(
+                tensor=video[None],
+                save_file=args.save_file,
+                fps=cfg.sample_fps,
+                nrow=1,
+                normalize=True,
+                value_range=(-1, 1))
         
     else:
         if args.prompt is None:
