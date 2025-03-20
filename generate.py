@@ -40,9 +40,10 @@ EXAMPLE_PROMPT = {
 def read_prompts_from_csv(file_path):
     prompts = []
     with open(file_path, mode='r', encoding='utf-8') as csvfile:
-        reader = csv.DictReader(csvfile)
+        reader = csv.reader(csvfile)
         for row in reader:
-            prompts.append(row['prompt'])
+            if row:  # Evita righe vuote
+                prompts.append(row[0])
     return prompts
 
 
