@@ -347,8 +347,7 @@ def generate(args):
                     "seed": args.base_seed
                 }
                 parameterFile.write(json.dumps(parameters) + "\n")
-    
-    
+
             
             """
             with open("seeds.txt", "a") as seed_file:
@@ -359,7 +358,9 @@ def generate(args):
                 seed_file.write(f"sample_steps:{args.sample_steps}\n")
                 seed_file.write(f"Seed:{args.base_seed}\n")
             """
-        
+
+            logging.info(f"Saving generated video to {args.save_file}")
+            
             cache_video(
                 tensor=video[None],
                 save_file=args.save_file,
@@ -438,15 +439,6 @@ def generate(args):
             cache_image(
                 tensor=video.squeeze(1)[None],
                 save_file=args.save_file,
-                nrow=1,
-                normalize=True,
-                value_range=(-1, 1))
-        else:
-            logging.info(f"Saving generated video to {args.save_file}")
-            cache_video(
-                tensor=video[None],
-                save_file=args.save_file,
-                fps=cfg.sample_fps,
                 nrow=1,
                 normalize=True,
                 value_range=(-1, 1))
