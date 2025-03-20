@@ -280,7 +280,6 @@ def generate(args):
     if "t2v" in args.task or "t2i" in args.task:
         if args.prompt is None:
             args.prompt = EXAMPLE_PROMPT[args.task]["prompt"]
-        logging.info(f"Input prompt: {args.prompt}")
         if args.use_prompt_extend:
             logging.info("Extending prompt ...")
             if rank == 0:
@@ -321,6 +320,8 @@ def generate(args):
             args.prompt = prompt
             args.save_file = f"{idx}.mp4"
             args.base_seed = random.randint(0, sys.maxsize)
+
+            logging.info(f"Input prompt: {args.prompt}\n")
 
             logging.info(
                 f"Generating {'image' if 't2i' in args.task else 'video'} ...")
