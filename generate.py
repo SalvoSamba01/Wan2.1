@@ -318,7 +318,7 @@ def generate(args):
             t5_cpu=args.t5_cpu,
         )
 
-        prompts = read_prompts_from_csv("prompt.csv")
+        prompts = read_prompts_from_csv("prompts.csv")
 
         for idx, prompt in enumerate(prompts):
             args.prompt = prompt
