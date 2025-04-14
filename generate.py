@@ -317,57 +317,67 @@ def generate(args):
 
         prompts = read_prompts_from_csv("/prompts/prompts.csv")
 
+        resolutions = [
+            "480*832",
+            "832*480",
+            "720*1280",
+            "1280*720",
+            #(720, 720),
+            #(480, 480)
+        ]
+        
         for idx, prompt in enumerate(prompts):
-            args.prompt = prompt
-            args.save_file = os.path.join("/videos", f"{idx}.mp4")
-            args.base_seed = random.randint(0, sys.maxsize)
-
-            logging.info(f"Input prompt: {args.prompt}\n")
-
-            logging.info(
-                f"Generating {'image' if 't2i' in args.task else 'video'} ...")
-            video = wan_t2v.generate(
-                args.prompt,
-                size=SIZE_CONFIGS[args.size],
-                frame_num=args.frame_num,
-                shift=args.sample_shift,
-                sample_solver=args.sample_solver,
-                sampling_steps=args.sample_steps,
-                guide_scale=args.sample_guide_scale,
-                seed=args.base_seed,
-                offload_model=args.offload_model)
+            for resolution in resolutions:
+                args.prompt = prompt
+                args.save_file = os.path.join("/videos", f"{idx}_{resolution}.mp4")
+                args.base_seed = 3469839056257903793
     
-            with open(os.path.join("/videos", "parameters.txt"), "a") as parameterFile:
-                parameters = {
-                    "filename": args.save_file,
-                    "prompt": args.prompt,
-                    "cfg": args.sample_guide_scale,
-                    "sample_shift": args.sample_shift,
-                    "sample_steps": args.sample_steps,
-                    "seed": args.base_seed
-                }
-                parameterFile.write(json.dumps(parameters) + "\n")
-
-            
-            """
-            with open("seeds.txt", "a") as seed_file:
-                seed_file.write(f"{args.save_file}\n")
-                seed_file.write(f"Prompt:{args.prompt}\n")
-                seed_file.write(f"cfg:{args.sample_guide_scale}\n")
-                seed_file.write(f"timeshift:{args.sample_shift}\n")
-                seed_file.write(f"sample_steps:{args.sample_steps}\n")
-                seed_file.write(f"Seed:{args.base_seed}\n")
-            """
-
-            logging.info(f"Saving generated video to {args.save_file}")
-            
-            cache_video(
-                tensor=video[None],
-                save_file=args.save_file,
-                fps=cfg.sample_fps,
-                nrow=1,
-                normalize=True,
-                value_range=(-1, 1))
+                logging.info(f"Input prompt: {args.prompt}\n")
+    
+                logging.info(
+                    f"Generating {'image' if 't2i' in args.task else 'video'} ...")
+                video = wan_t2v.generate(
+                    args.prompt,
+                    size=SIZE_CONFIGS[resolution],
+                    frame_num=args.frame_num,
+                    shift=args.sample_shift,
+                    sample_solver=args.sample_solver,
+                    sampling_steps=args.sample_steps,
+                    guide_scale=args.sample_guide_scale,
+                    seed=args.base_seed,
+                    offload_model=args.offload_model)
+        
+                with open(os.path.join("/videos", "parameters.txt"), "a") as parameterFile:
+                    parameters = {
+                        "filename": args.save_file,
+                        "prompt": args.prompt,
+                        "cfg": args.sample_guide_scale,
+                        "sample_shift": args.sample_shift,
+                        "sample_steps": args.sample_steps,
+                        "seed": args.base_seed
+                    }
+                    parameterFile.write(json.dumps(parameters) + "\n")
+    
+                
+                """
+                with open("seeds.txt", "a") as seed_file:
+                    seed_file.write(f"{args.save_file}\n")
+                    seed_file.write(f"Prompt:{args.prompt}\n")
+                    seed_file.write(f"cfg:{args.sample_guide_scale}\n")
+                    seed_file.write(f"timeshift:{args.sample_shift}\n")
+                    seed_file.write(f"sample_steps:{args.sample_steps}\n")
+                    seed_file.write(f"Seed:{args.base_seed}\n")
+                """
+    
+                logging.info(f"Saving generated video to {args.save_file}")
+                
+                cache_video(
+                    tensor=video[None],
+                    save_file=args.save_file,
+                    fps=cfg.sample_fps,
+                    nrow=1,
+                    normalize=True,
+                    value_range=(-1, 1))
         
     else:
         if args.prompt is None:
