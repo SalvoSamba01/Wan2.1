@@ -318,12 +318,12 @@ def generate(args):
         prompts = read_prompts_from_csv("/prompts/prompts.csv")
 
         resolutions = [
-            "480*832",
-            "832*480",
-            "720*1280",
-            "1280*720",
-            #(720, 720),
-            #(480, 480)
+            #"480*832",
+            #"832*480",
+            #"720*1280",
+            #"1280*720",
+            "(480, 480)",
+            "(720, 720)"
         ]
         
         for idx, prompt in enumerate(prompts):
