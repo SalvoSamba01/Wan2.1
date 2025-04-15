@@ -863,6 +863,7 @@ def generate(args):
             use_usp=(args.ulysses_size > 1 or args.ring_size > 1),
             t5_cpu=args.t5_cpu,
         )
+      
 
         # TeaCache
         wan_t2v.__class__.generate = t2v_generate
@@ -894,6 +895,7 @@ def generate(args):
             wan_t2v.model.__class__.cutoff_steps = args.sample_steps*2 - 2
         logging.info(
             f"Generating {'image' if 't2i' in args.task else 'video'} ...")
+
         video = wan_t2v.generate(
             args.prompt,
             size=SIZE_CONFIGS[args.size],
@@ -989,7 +991,9 @@ def generate(args):
             guide_scale=args.sample_guide_scale,
             seed=args.base_seed,
             offload_model=args.offload_model)
-
+      
+    args.save_file = os.path.join("/videos", "teacache.mp4")
+  
     if rank == 0:
         if args.save_file is None:
             formatted_time = datetime.now().strftime("%Y%m%d_%H%M%S")
